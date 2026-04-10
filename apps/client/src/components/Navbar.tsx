@@ -1,3 +1,5 @@
+"use client"
+
 import Image from "next/image"
 import Link from "next/link"
 import SearchBar from "./SearchBar"
@@ -28,7 +30,18 @@ const Navbar = () => {
             <Bell className="w-4 h-4 text-gray-600"/>
             <ShoppingCartIcon/>
             <Show when="signed-out">
-              <SignInButton />
+              <div className="flex items-center gap-3">
+                <SignInButton mode="modal">
+                  <button className="rounded-full border border-gray-300 px-4 py-2 text-sm font-medium text-gray-700 transition-all duration-300 hover:bg-gray-100 cursor-pointer">
+                    Sign In
+                  </button>
+                </SignInButton>
+                <SignUpButton mode="modal">
+                  <button className="bg-[#6c47ff] text-white rounded-full font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 cursor-pointer">
+                    Sign Up
+                  </button>
+                </SignUpButton>
+              </div>
             </Show>
             <Show when="signed-in">
               <UserButton />
