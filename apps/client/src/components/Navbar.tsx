@@ -5,7 +5,8 @@ import Link from "next/link"
 import SearchBar from "./SearchBar"
 import { Bell, Home } from "lucide-react"
 import ShoppingCartIcon from "./ShoppingCartIcon"
-import { Show, SignInButton, SignUpButton, UserButton } from "@clerk/nextjs"
+import { Show, SignInButton, SignUpButton } from "@clerk/nextjs"
+import ProfileButton from "./ProfileButton"
 
 const Navbar = () => {
   return (
@@ -44,7 +45,7 @@ const Navbar = () => {
               </div>
             </Show>
             <Show when="signed-in">
-              <UserButton />
+              <ProfileButton />
             </Show>
         </div>
     </nav>

@@ -18,6 +18,9 @@
     "typescript": "^6.0.2"
   },
   "dependencies": {
+    "@clerk/backend": "^3.2.8",
+    "@clerk/fastify": "^3.1.10",
+    "@fastify/cors": "^11.2.0",
     "fastify": "^5.5.0"
   }
 }
