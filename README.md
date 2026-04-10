@@ -1,159 +1,129 @@
-# Turborepo starter
+# Ecommerce App Monorepo
 
-This Turborepo starter is maintained by the Turborepo core team.
+A modern e-commerce project built as a **monorepo** using `pnpm workspaces` and `Turborepo`.
+The repository includes a customer-facing storefront, an admin dashboard, and separate backend services for products, orders, and payments.
 
-## Using this example
+---
 
-Run the following command:
+## 🧱 Monorepo Architecture
 
-```sh
-npx create-turbo@latest
+The project is organized as a **monorepo**, which means multiple applications and shared configurations are managed in a single repository.
+
+| Part | Description |
+| --- | --- |
+| `apps/client` | customer-facing e-commerce frontend |
+| `apps/admin` | admin panel for content management and analytics overview |
+| `apps/product-service` | product API service built with `Express` |
+| `apps/order-service` | order service built with `Fastify` |
+| `apps/payment-service` | payment service built with `Hono` |
+| `packages/eslint-config` | shared ESLint configuration |
+| `packages/typescript-config` | shared TypeScript configuration |
+
+---
+
+## 🛠️ Technologies Used
+
+### Core / Tooling
+- `pnpm` + `pnpm workspaces`
+- `Turborepo`
+- `TypeScript`
+- `ESLint`
+- `Prettier`
+
+### Frontend
+- `Next.js 16`
+- `React 19`
+- `Tailwind CSS 4`
+- `shadcn/ui` and `Radix UI`
+- `lucide-react`
+- `React Hook Form`
+- `Zod` for form validation
+- `Clerk` for user authentication
+- `Zustand` for cart state management and persistence
+- `Recharts` for admin dashboard charts
+- `TanStack Table` for tables and data grids
+
+### Backend / API Services
+- `Express` (`product-service`)
+- `Fastify` (`order-service`)
+- `Hono` (`payment-service`)
+- `CORS` for communication between services and frontend apps
+
+---
+
+## ✨ Main Features
+
+### Customer App (`client`)
+- product listing on the homepage
+- product filtering by category
+- product detail page with size and color variants
+- shopping cart with persisted state via `Zustand persist`
+- sign in and sign up with `Clerk`
+- checkout / payment form with validation
+
+### Admin App (`admin`)
+- dashboard with statistics and charts
+- tables for **products**, **users**, and **payments**
+- forms and UI components for adding / editing entities
+- overview of recent transactions and popular products
+- responsive interface built with modern UI components
+
+### Services
+- dedicated health-check endpoints for each service
+- separated architecture for products, orders, and payments
+- easier scalability and maintenance thanks to multiple isolated apps
+
+---
+
+## 🚀 Running the Project
+
+### Requirements
+- `Node.js >= 18`
+- `pnpm >= 9`
+
+### Installation
+```bash
+pnpm install
 ```
 
-## What's inside?
-
-This Turborepo includes the following packages/apps:
-
-### Apps and Packages
-
-- `docs`: a [Next.js](https://nextjs.org/) app
-- `web`: another [Next.js](https://nextjs.org/) app
-- `@repo/ui`: a stub React component library shared by both `web` and `docs` applications
-- `@repo/eslint-config`: `eslint` configurations (includes `eslint-config-next` and `eslint-config-prettier`)
-- `@repo/typescript-config`: `tsconfig.json`s used throughout the monorepo
-
-Each package/app is 100% [TypeScript](https://www.typescriptlang.org/).
-
-### Utilities
-
-This Turborepo has some additional tools already setup for you:
-
-- [TypeScript](https://www.typescriptlang.org/) for static type checking
-- [ESLint](https://eslint.org/) for code linting
-- [Prettier](https://prettier.io) for code formatting
-
-### Build
-
-To build all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo build
+### Run the entire monorepo
+```bash
+pnpm dev
 ```
 
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo build
-pnpm dlx turbo build
-pnpm exec turbo build
+### Run individual apps
+```bash
+pnpm --filter client dev
+pnpm --filter admin dev
+pnpm --filter product-service dev
+pnpm --filter order-service dev
+pnpm --filter payment-service dev
 ```
 
-You can build a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
+### Default Ports
+| Service | Port |
+| --- | --- |
+| `client` | `3002` |
+| `admin` | `3003` |
+| `product-service` | `8000` |
+| `order-service` | `8001` |
+| `payment-service` | `8002` |
 
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
+---
 
-```sh
-turbo build --filter=docs
+## 📦 Useful Scripts
+
+```bash
+pnpm dev          # runs all apps via Turborepo
+pnpm build        # builds all packages
+pnpm lint         # runs lint across the monorepo
+pnpm check-types  # TypeScript type-check
+pnpm format       # formats project files
 ```
 
-Without global `turbo`:
+---
 
-```sh
-npx turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-pnpm exec turbo build --filter=docs
-```
+## 📌 Summary
 
-### Develop
-
-To develop all apps and packages, run the following command:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo dev
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo dev
-pnpm exec turbo dev
-pnpm exec turbo dev
-```
-
-You can develop a specific package by using a [filter](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters):
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo dev --filter=web
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-pnpm exec turbo dev --filter=web
-```
-
-### Remote Caching
-
-> [!TIP]
-> Vercel Remote Cache is free for all plans. Get started today at [vercel.com](https://vercel.com/signup?utm_source=remote-cache-sdk&utm_campaign=free_remote_cache).
-
-Turborepo can use a technique known as [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching) to share cache artifacts across machines, enabling you to share build caches with your team and CI/CD pipelines.
-
-By default, Turborepo will cache locally. To enable Remote Caching you will need an account with Vercel. If you don't have an account you can [create one](https://vercel.com/signup?utm_source=turborepo-examples), then enter the following commands:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed (recommended):
-
-```sh
-cd my-turborepo
-turbo login
-```
-
-Without global `turbo`, use your package manager:
-
-```sh
-cd my-turborepo
-npx turbo login
-pnpm exec turbo login
-pnpm exec turbo login
-```
-
-This will authenticate the Turborepo CLI with your [Vercel account](https://vercel.com/docs/concepts/personal-accounts/overview).
-
-Next, you can link your Turborepo to your Remote Cache by running the following command from the root of your Turborepo:
-
-With [global `turbo`](https://turborepo.dev/docs/getting-started/installation#global-installation) installed:
-
-```sh
-turbo link
-```
-
-Without global `turbo`:
-
-```sh
-npx turbo link
-pnpm exec turbo link
-pnpm exec turbo link
-```
-
-## Useful Links
-
-Learn more about the power of Turborepo:
-
-- [Tasks](https://turborepo.dev/docs/crafting-your-repository/running-tasks)
-- [Caching](https://turborepo.dev/docs/crafting-your-repository/caching)
-- [Remote Caching](https://turborepo.dev/docs/core-concepts/remote-caching)
-- [Filtering](https://turborepo.dev/docs/crafting-your-repository/running-tasks#using-filters)
-- [Configuration Options](https://turborepo.dev/docs/reference/configuration)
-- [CLI Usage](https://turborepo.dev/docs/reference/command-line-reference)
+This project is a **full-stack e-commerce monorepo** that combines a modern frontend stack (`Next.js`, `React`, `Tailwind`) with separated backend services (`Express`, `Fastify`, `Hono`).
+Thanks to the monorepo architecture, apps and shared configurations are managed clearly in one place.
