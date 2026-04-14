@@ -53,6 +53,8 @@ const TestPage = () => {
 
             const token = await getToken();
 
+            console.log("Token for payment service:", token);
+
             const resPayment = await fetch("http://localhost:8002/test", {
 
                 headers: {
