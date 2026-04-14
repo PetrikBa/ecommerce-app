@@ -3,7 +3,7 @@ import { createCategory, deleteCategory, getCategories, updateCategory } from '.
 
 const router: Router = Router();
 
-router.post('/create', createCategory);
+router.post('/', createCategory);
 router.put('/:id', updateCategory);
 router.delete('/:id', deleteCategory);
 router.get('/', getCategories);
