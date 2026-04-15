@@ -1,5 +1,5 @@
 "use client"
-import { ProductType } from "@/types";
+import { ProductType } from "@repo/types";
 import Link from "next/link";
 import Image from "next/image";
 import { ShoppingCart } from "lucide-react";
@@ -9,8 +9,8 @@ import { toast } from "react-toastify";
 
 const ProductCard = ({product}:{product:ProductType}) => {
     const [productTypes, setProductTypes] = useState({
-        size:product.sizes[0],
-        color:product.colors[0]
+        size:product.sizes[0]!,
+        color:product.colors[0]!
     });
     
     const {addToCart} = UseCartStore();
@@ -44,7 +44,7 @@ const ProductCard = ({product}:{product:ProductType}) => {
             <Link href={`/products/${product.id}`} className="">
                 <div className="relative aspect-[2/3]">
                     <Image 
-                        src={product.images?.[productTypes.color] || ""} 
+                        src={(product.images as Record<string,string>)[productTypes.color] || ""} 
                         alt={product.name} 
                         fill 
                         className="object-cover hover:scale-105 transition-all duration-300" />

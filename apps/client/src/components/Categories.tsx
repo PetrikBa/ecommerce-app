@@ -1,5 +1,5 @@
 "use client"
-import { CategoriesType } from "@/types";
+import { CategoriesType } from "@repo/types";
 
 import {
   Footprints,
@@ -12,7 +12,7 @@ import {
 } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 
-const categories: CategoriesType = [
+const categories = [
   {
     name: "All",
     icon: <ShoppingBasket className="w-4 h-4" />,

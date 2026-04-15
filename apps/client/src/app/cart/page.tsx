@@ -1,11 +1,10 @@
 "use client"
 
-import { CartItemsType, ShippingFormInputs } from "@/types";
+import { CartItemsType, ShippingFormInputs } from "@repo/types";
 import { ArrowRight, Trash2 } from "lucide-react";
 import { useRouter, useSearchParams } from "next/dist/client/components/navigation";
 import { useState } from "react";
 import ShippingForm from "@/components/ShippingForm";
-import PaymentForm from "@/components/PaymentForm";
 import Image from "next/image";
 import UseCartStore from "@/stores/CartStore";
 
@@ -117,7 +116,7 @@ const CartPage = () => {
                 <div className="flex gap-8">
                   <div className="relative w-32 h-32 bg-gray-50 rounded-lg overflow-hidden">
                     <Image 
-                      src={item.images?.[item.selectedColor] || ""} 
+                      src={(item.images as Record<string,string>)[item.selectedColor] || ""} 
                       alt={item.name} 
                       fill 
                       className="object-contain"
@@ -145,7 +144,7 @@ const CartPage = () => {
             ) : activeStep === 2 ? (
               <ShippingForm setShippingForm={setShippingForm} />
               ) : activeStep === 3  && shippingForm ? (
-              <PaymentForm/> 
+              "TODO:add stripe form" 
               ) : (
                 <p className="text-sm text-gray-500">Please fill in shipping form to continue</p>
               )}
