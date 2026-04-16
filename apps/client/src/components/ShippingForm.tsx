@@ -29,7 +29,8 @@ const ShippingForm = ({setShippingForm}:{setShippingForm:(data: ShippingFormInpu
                     type="text" 
                     id="name" 
                     placeholder="John Doe" 
-                    {...register("name")} 
+                    {...register("name")}
+                    value="John Doe" 
                 />
                 {errors.name && <p className="text-xs text-red-500">{errors.name.message}</p>}
             </div>
@@ -41,6 +42,7 @@ const ShippingForm = ({setShippingForm}:{setShippingForm:(data: ShippingFormInpu
                     id="email" 
                     placeholder="john.doe@example.com" 
                     {...register("email")} 
+                    value="test@test.test"
                 />
                 {errors.email && <p className="text-xs text-red-500">{errors.email.message}</p>}
             </div>
@@ -52,6 +54,7 @@ const ShippingForm = ({setShippingForm}:{setShippingForm:(data: ShippingFormInpu
                     id="phone" 
                     placeholder="(123) 456-7890" 
                     {...register("phone")} 
+                    value="4567890"
                 />
                 {errors.phone && <p className="text-xs text-red-500">{errors.phone.message}</p>}
             </div>
@@ -63,6 +66,7 @@ const ShippingForm = ({setShippingForm}:{setShippingForm:(data: ShippingFormInpu
                     id="address" 
                     placeholder="123 Main St" 
                     {...register("address")} 
+                    value="123 Main St"
                 />
                 {errors.address && <p className="text-xs text-red-500">{errors.address.message}</p>}
             </div>
@@ -74,6 +78,7 @@ const ShippingForm = ({setShippingForm}:{setShippingForm:(data: ShippingFormInpu
                     id="city" 
                     placeholder="New York" 
                     {...register("city")} 
+                    value="New York"
                 />
                 {errors.city && <p className="text-xs text-red-500">{errors.city.message}</p>}
             </div>
