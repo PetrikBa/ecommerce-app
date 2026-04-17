@@ -3,6 +3,7 @@ import { Hono } from 'hono'
 import { cors } from 'hono/cors'
 import { clerkMiddleware } from "@clerk/hono"
 import sessionRoute from './routes/session.route.js'
+import webHookRoute from './routes/webhooks.route.js'
 
 const app = new Hono()
 
@@ -21,6 +22,7 @@ app.get('/health', (c) => {
 })
 
 app.route('/sessions', sessionRoute);
+app.route('/webhooks', webHookRoute);
 
 /* app.post('/create-stripe-product', async (c) => {
   const res = await stripe.products.create({

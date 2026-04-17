@@ -38,9 +38,6 @@ sessionRoute.post('/create-checkout-session', shouldBeUser, async (c) => {
         mode: 'payment',
         ui_mode: 'elements' as any,
         return_url: `${process.env.CLIENT_URL}/return?session_id={CHECKOUT_SESSION_ID}`,
-        shipping_address_collection: {
-            allowed_countries: ['US', 'GB', 'DE', 'FR', 'SK', 'CZ'],
-        },
         metadata: {
             userId,
             cart: JSON.stringify(cart.map(({ id, quantity, selectedSize, selectedColor }) => ({ id, quantity, selectedSize, selectedColor }))),
@@ -57,9 +54,15 @@ sessionRoute.post('/create-checkout-session', shouldBeUser, async (c) => {
 
 sessionRoute.get('/:session_id', async (c) => {
         const { session_id } = c.req.param();
-        const session = await stripe.checkout.sessions.retrieve(session_id as string);    
+        const session = await stripe.checkout.sessions.retrieve(session_id as string, {
+            expand: ['line_items']
+        });    
+
         console.log(session);  
-        return c.json(session);
+        return c.json({
+            session: session.status,
+            paymentStatus: session.payment_status,
+        });
 });
 
 export default sessionRoute;

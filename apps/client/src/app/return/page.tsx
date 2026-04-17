@@ -1,3 +1,6 @@
+import Link from "next/link";
+
+
 const ReturnPage = async ({searchParams}:{searchParams: Promise<{session_id: string}> | undefined}) => {
     const session_id = (await searchParams)?.session_id;
 
@@ -10,9 +13,12 @@ const ReturnPage = async ({searchParams}:{searchParams: Promise<{session_id: str
     console.log(data);
     
     return (
-    <div className="">X
+    <div className="">
+        <h1 className="">Payment: {data.session}</h1>
+        <p>Payment status: {data.paymentStatus}</p>
+        <Link href="/orders">See your orders</Link>
     </div>
   );
-};
+}; 
 
 export default ReturnPage;
