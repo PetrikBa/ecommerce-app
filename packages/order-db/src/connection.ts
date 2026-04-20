@@ -13,6 +13,7 @@ export const connectOrderDB = async () =>{
         isConnected = true;
         console.log('Connected to Mongo DB orders Database');
     } catch (err) {
-        console.log(err);
+        console.error('Failed to connect to MongoDB:', err);
+        throw err;
     }
 }

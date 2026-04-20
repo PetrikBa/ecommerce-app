@@ -14,58 +14,55 @@ const TestPage = () => {
     useEffect(() => {
         const runProduct = async () => {
             if (!isLoaded) return;
-
-            const token = await getToken();
-
-            const resProduct = await fetch("http://localhost:8000/test", {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-
-            const dataProduct = await resProduct.json();
-            setProductMessage(dataProduct.message);
-            setPaymentUserId(dataProduct.userId);
+            try {
+                const token = await getToken();
+                const resProduct = await fetch("http://localhost:8000/test", {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const dataProduct = await resProduct.json();
+                setProductMessage(dataProduct.message);
+                setPaymentUserId(dataProduct.userId);
+            } catch (e) {
+                setProductMessage("Error: product service unavailable");
+                console.error("Product service error:", e);
+            }
         };
 
         runProduct();
 
         const runOrder = async () => {
             if (!isLoaded) return;
-
-            const token = await getToken();
-
-            const resOrder = await fetch("http://localhost:8001/test", {
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-
-            const dataOrder = await resOrder.json();
-            setOrderMessage(dataOrder.message);
-            setPaymentUserId(dataOrder.userId);
+            try {
+                const token = await getToken();
+                const resOrder = await fetch("http://localhost:8001/test", {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const dataOrder = await resOrder.json();
+                setOrderMessage(dataOrder.message);
+                setPaymentUserId(dataOrder.userId);
+            } catch (e) {
+                setOrderMessage("Error: order service unavailable");
+                console.error("Order service error:", e);
+            }
         };
 
         runOrder();
 
         const runPayment = async () => {
             if (!isLoaded) return;
-
-            const token = await getToken();
-
-            console.log("Token for payment service:", token);
-
-            const resPayment = await fetch("http://localhost:8002/test", {
-
-                headers: {
-                    Authorization: `Bearer ${token}`
-                }
-            });
-
-            const dataPayment = await resPayment.json();
-            setPaymentMessage(dataPayment.message);
-            setPaymentUserId(dataPayment.userId);
-            console.log("Payment service response:", dataPayment);
+            try {
+                const token = await getToken();
+                const resPayment = await fetch("http://localhost:8002/test", {
+                    headers: { Authorization: `Bearer ${token}` }
+                });
+                const dataPayment = await resPayment.json();
+                setPaymentMessage(dataPayment.message);
+                setPaymentUserId(dataPayment.userId);
+                console.log("Payment service response:", dataPayment);
+            } catch (e) {
+                setPaymentMessage("Error: payment service unavailable");
+                console.error("Payment service error:", e);
+            }
         };
 
         runPayment();
