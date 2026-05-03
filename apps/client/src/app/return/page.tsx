@@ -1,4 +1,5 @@
 import Link from "next/link";
+import ClearCart from "@/components/ClearCart";
 
 
 const ReturnPage = async ({searchParams}:{searchParams: Promise<{session_id: string}> | undefined}) => {
@@ -14,6 +15,7 @@ const ReturnPage = async ({searchParams}:{searchParams: Promise<{session_id: str
     
     return (
     <div className="">
+        {data.paymentStatus === "paid" && <ClearCart />}
         <h1 className="">Payment: {data.session}</h1>
         <p>Payment status: {data.paymentStatus}</p>
         <Link href="/orders">See your orders</Link>

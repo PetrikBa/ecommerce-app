@@ -20,7 +20,6 @@ const OrdersPage = async () => {
     if(!orders || orders.length === 0) {
         return <div className="text-center mt-12">No orders found.</div>
     }
-    console.log(orders);
     return (
         <div className="mt-8">
             <h1 className="text-2xl font-medium mb-6">Your Orders</h1>

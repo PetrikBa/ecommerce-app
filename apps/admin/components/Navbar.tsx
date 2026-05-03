@@ -3,6 +3,7 @@
 import { useEffect, useState } from "react";
 import Link from "next/link";
 import { LogOut, Moon, Settings, SquareMenu, User, Sun } from "lucide-react";
+import { useClerk } from "@clerk/nextjs";
 import { Avatar, AvatarImage, AvatarFallback } from "./ui/avatar";
 import {
   DropdownMenu,
@@ -27,6 +28,7 @@ const Navbar = () => {
     const { setTheme } = useTheme();
 
     const {toggleSidebar} = useSidebar();
+    const { signOut } = useClerk();
 
 
     return(
@@ -85,7 +87,7 @@ const Navbar = () => {
                                 </DropdownMenuGroup>
                                 <DropdownMenuSeparator />
                                 <DropdownMenuGroup>
-                                <DropdownMenuItem variant="destructive">
+                                <DropdownMenuItem variant="destructive" onClick={() => signOut()}>
                                     <LogOut className="h-[1.2rem] w-[1.2rem] mr-2"/>
                                     Sign out
                                 </DropdownMenuItem>
