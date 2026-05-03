@@ -70,12 +70,12 @@ const CartPage = () => {
                   {/* ITEM DETAILS */}
                   <div className="flex flex-col justify-between">
                     <div className="flex flex-col gap-1">
-                      <p className="text-sm font-medium">{item.name}</p>
+                      <a href={`/products/${item.id}`} className="text-sm font-medium hover:underline">{item.name}</a>
                       <p className="text-xs text-gray-500">Quantity:{" "}{item.quantity}</p>
                       <p className="text-xs text-gray-500">Size:{" "}{item.selectedSize}</p>
                       <p className="text-xs text-gray-500">Color:{" "}{item.selectedColor}</p>
                     </div>
-                    <p className="font-medium">${item.price.toFixed(2)}</p>
+                    <p className="font-medium">${((item.price / 100) * item.quantity).toFixed(2)}</p>
                   </div>
                 </div>
                 {/* DELETE BUTTON */}
@@ -103,7 +103,7 @@ const CartPage = () => {
                 <p className="font-medium">
                   $
                   {cart
-                    .reduce((acc, item) => acc + item.price * item.quantity, 0)
+                    .reduce((acc, item) => acc + (item.price / 100) * item.quantity, 0)
                     .toFixed(2)}
                   </p>
               </div>
@@ -121,7 +121,7 @@ const CartPage = () => {
                 <p className="font-medium">
                   $
                   {cart
-                    .reduce((acc, item) => acc + item.price * item.quantity, 0)
+                    .reduce((acc, item) => acc + item.price / 100 * item.quantity, 0)
                     .toFixed(2)}
                 </p>
               </div>

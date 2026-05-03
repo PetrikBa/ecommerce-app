@@ -102,5 +102,5 @@ export const getProduct = async (req:Request, res:Response) => {
         where: {id: Number(id)},
     });
     
-    return res.status(200).json({product});
+    return res.status(200).json(product);
 }

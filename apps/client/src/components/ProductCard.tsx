@@ -87,7 +87,7 @@ const ProductCard = ({product}:{product:ProductType}) => {
                 </div>
                 {/* PRICE AND ADD TO CART BUTTON */}
                 <div className="flex items-center justify-between">
-                    <p className="font-medium">${product.price.toFixed(2)}</p>
+                    <p className="font-medium">${(product.price / 100).toFixed(2)}</p>
                     <button 
                         className="ring-1 ring-gray-200 shadow-lg rounded-md px-2 py-1 text-sm cursor-pointer hover:text-white hover:bg-black transition-all duration-300 flex items-center gap-2"
                         onClick={handleAddToCart}

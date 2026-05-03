@@ -29,7 +29,11 @@ const UseCartStore = create<CartStoreStateType & CartStoreActionsType>()(
            }] };
       }),
     removeFromCart: (product) => 
-      set((state) => ({ cart: state.cart.filter(p=>p.id !== product.id) })),
+      set((state) => ({ cart: state.cart.filter(p=>
+        !(p.id === product.id &&
+          p.selectedColor === product.selectedColor &&
+          p.selectedSize === product.selectedSize)
+      ) })),
     clearCart: () =>  set({ cart: [] }),
   }),{
     name: "cart",
