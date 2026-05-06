@@ -9,7 +9,9 @@ declare module "fastify" {
 }
 
 export const shouldBeUser = async (request: FastifyRequest, reply: FastifyReply) => {
-    const { userId } = getAuth(request);
+    const auth = getAuth(request);
+    console.log("AUTH:", JSON.stringify(auth));
+    const { userId } = auth;
 
     if (!userId) {
         return reply.status(401).send({ message: 'You are not logged in!' });

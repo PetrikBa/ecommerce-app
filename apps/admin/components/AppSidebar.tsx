@@ -191,7 +191,7 @@ const AppSidebar = () => {
                         <SidebarMenu>
                             <SidebarMenuItem>
                                 <SidebarMenuButton asChild style={{ backgroundColor: 'transparent' }}>
-                                    <Link href="/Payments">
+                                    <Link href="/payments">
                                         <ShoppingBasket/>
                                         See all Transactions
                                     </Link>

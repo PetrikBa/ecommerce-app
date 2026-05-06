@@ -6,19 +6,9 @@ import {ColumnDef} from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
+import { ProductType } from "@repo/types";
 
-export type Product = {
-  id: string | number;
-  name: string;
-  shortDescription: string;
-  description: string;
-  price: number;
-  sizes: [string ,...string[]];
-  colors: [string ,...string[]];
-  images: Record<string, string>;
-}
-
-export const columns: ColumnDef<Product>[] = [
+export const columns: ColumnDef<ProductType>[] = [
   {
     id: "select",
     header: ({ table }) => (
@@ -57,7 +47,7 @@ export const columns: ColumnDef<Product>[] = [
         return (
           <div className="h-10 w-10 overflow-hidden rounded-full">
             <Image
-              src={product.images?.[product.colors[0]] || ""}
+              src={(product.images as Record<string, string>)?.[product.colors[0] || ""] || ""}
               alt={`Image of ${product.name}`}
               width={40}
               height={40}
@@ -79,6 +69,10 @@ export const columns: ColumnDef<Product>[] = [
           <ArrowUpDown className="ml-2 h-4 w-4" />
         </Button>
       )
+    },
+    cell: ({ row }) => {
+      const price = row.getValue<number>("price");
+      return new Intl.NumberFormat("sk-SK").format(price / 100);
     },
   },
   {

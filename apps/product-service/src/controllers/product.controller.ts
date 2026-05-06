@@ -91,7 +91,7 @@ export const getProducts = async (req:Request, res:Response) => {
         orderBy,
         take: limit ? Number(limit) : undefined,
     });
-    res.status(200).json({products});   
+    res.status(200).json(products);   
 
 }
 
