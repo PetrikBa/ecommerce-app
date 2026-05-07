@@ -1,9 +1,7 @@
 import { Breadcrumb, BreadcrumbItem, BreadcrumbLink, BreadcrumbList, BreadcrumbPage, BreadcrumbSeparator } from "@/components/ui/breadcrumb";
-import CardList from "@/components/CardList";
 import { HoverCard, HoverCardContent, HoverCardTrigger } from "@/components/ui/hover-card";
-import { BadgeCheck, Candy, Citrus, Edit, Shield } from "lucide-react";
+import { BadgeCheck, Candy, Citrus, Shield } from "lucide-react";
 import { Progress } from "@/components/ui/progress";
-import { Badge } from "@/components/ui/badge";
 import {
   Sheet,
   SheetTrigger,
@@ -12,12 +10,38 @@ import { Button } from "@/components/ui/button";
 import EditUser from "@/components/EditUser";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import AppLineChart from "@/components/AppLineChart";
+import { auth, EmailAddress, User } from "@clerk/nextjs/server";
 
-export function generateStaticParams() {
-  return [{ users: "john-doe" }, { users: "test" }]
-}
+const getData = async (id:string): Promise<User | null> => {
+  const {getToken} = await auth();
+  const token = await getToken();
 
-const SingleUserPage = () => {
+  try{
+    const res = await fetch(`${process.env.NEXT_PUBLIC_AUTH_SERVICE_URL}/users/${id}`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    });
+    const data = await res.json();
+    return data;
+  } catch (error) {
+      console.error(error);
+      return null;
+  }
+};
+
+const SingleUserPage = async ({ params }: { params: { id: string } }) => {
+    const {id} = await params;
+    const  data = await getData(id);
+
+    if(!data){
+      return (
+        <div className="flex items-center justify-center h-64">
+          <p className="text-muted-foreground">User not found.</p>
+        </div>
+      )
+    }
+
     return (
         <div className="">
         <Breadcrumb>
@@ -31,7 +55,7 @@ const SingleUserPage = () => {
                 </BreadcrumbItem>
                 <BreadcrumbSeparator />
                 <BreadcrumbItem>
-                <BreadcrumbPage>John Doe</BreadcrumbPage>
+                <BreadcrumbPage>{(data?.firstName + " " + data?.lastName) || data?.username || "User Not Found"}</BreadcrumbPage>
                 </BreadcrumbItem>
             </BreadcrumbList>
         </Breadcrumb>
@@ -106,11 +130,11 @@ const SingleUserPage = () => {
                 <div className="bg-primary-foreground p-4 rounded-lg space-y-2">
                   <div className="flex items-center gap-2">
                     <Avatar>
-                      <AvatarImage src="https://avatars.githubusercontent.com/u/1?v=4" alt="User Avatar" />
-                      <AvatarFallback>JD</AvatarFallback>                      
+                      <AvatarImage src={data.imageUrl} alt="User Avatar" />
+                      <AvatarFallback>{(data?.firstName?.charAt(0) || (data?.username?.charAt(0) || "-"))}</AvatarFallback>                      
                     </Avatar>
 
-                    <h1 className="text-2xl font-semibold mt-4">John Doe</h1>
+                    <h1 className="text-2xl font-semibold mt-4">{(data?.firstName + " " + data?.lastName) || data?.username || "User Not Found"}</h1>
                   </div>
                   <p className="text-s text-muted-foreground">Lorem ipsum dolor sit amet, consectetur adipiscing elit.</p>
                 </div>
@@ -132,26 +156,26 @@ const SingleUserPage = () => {
                         </div>
                         <div className="flex items-center gap-2">
                             <span className="font-bold">Full name:</span>
-                            <span>John Doe</span>
+                            <span>{(data?.firstName + " " + data?.lastName) || data?.username || "User Not Found"}</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <span className="font-bold">Email:</span>
-                            <span>john.doe@example.com</span>
+                            <span>{data?.emailAddresses[0]?.emailAddress || "Email not available"}</span>
                         </div>
                         <div className="flex items-center gap-2">
                             <span className="font-bold">Phone:</span>
-                            <span>+1 234 567 890</span>
+                            <span>{data?.phoneNumbers[0]?.phoneNumber || "Phone not available"}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                            <span className="font-bold">Address:</span>
-                            <span>123 Main St, New York, USA</span>
+                            <span className="font-bold">Role:</span>
+                            <span>{String(data.publicMetadata?.role) || "user"}</span>
                         </div>
                         <div className="flex items-center gap-2">
-                            <span className="font-bold">City:</span>
-                            <span>New York</span>
+                            <span className="font-bold">Status:</span>
+                            <span>{data.banned ? "banned" : "active"}</span>
                         </div>
                     </div>
-                    <p className="text-sm text-muted-foreground mt-4">Joined on 2026, Jan 11</p>
+                    <p className="text-sm text-muted-foreground mt-4">Joined on {new Date(data.createdAt).toLocaleDateString("en-US")}</p>
                 </div>
             </div>
             {/* RIGHT */}

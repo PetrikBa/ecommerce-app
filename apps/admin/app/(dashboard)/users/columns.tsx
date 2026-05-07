@@ -3,18 +3,19 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuLabel, DropdownMenuSeparator, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { cn } from "@/lib/utils";
+import { User } from "@clerk/nextjs/server";
 import {ColumnDef} from "@tanstack/react-table";
 import { ArrowUpDown, MoreHorizontal } from "lucide-react";
 import Image from "next/image";
 import Link from "next/link";
 
-export type User = {
+/* export type User = {
   id: string;
   status: "active" | "inactive";
   fullName: string;
   avatar: string;
   email: string;
-}
+} */
 
 export const columns: ColumnDef<User>[] = [
   {
@@ -47,8 +48,8 @@ export const columns: ColumnDef<User>[] = [
          return (
         <div className="h-10 w-10 overflow-hidden rounded-full">
           <Image
-            src={user.avatar}
-            alt={`Image of ${user.fullName}`}
+            src={user.imageUrl}
+            alt={user.firstName || user.username || "User Avatar"}
             width={40}
             height={40}
             className="h-full w-full object-cover"
@@ -58,8 +59,14 @@ export const columns: ColumnDef<User>[] = [
     }
   },
   {
-    accessorKey: "fullName",
+    accessorKey: "firstName",
     header: "User",
+    cell: ({ row }) => {
+        const user = row.original;
+        return (
+            <div className="">{user.firstName || user.username || "User Avatar"}</div>
+        )
+    }
   },
   {
     accessorKey: "email",
@@ -74,18 +81,25 @@ export const columns: ColumnDef<User>[] = [
         </Button>
       )
     },
+    cell: ({ row }) => {
+        const user = row.original;
+        return (
+            <div className="">{user.emailAddresses[0]?.emailAddress || "No Email"}</div>
+        )
+    }
   },
     {
     accessorKey: "status",
     header: "Status",
     cell: ({ row }) => {
-        const status = row.getValue("status");
+        const user = row.original;
+        const status = user.banned ? "banned" : "active";
         
         return (
             <div className={cn(
                 `p-1 rounded w-max text-xs`, {
                 "bg-green-500/40": status === "active",
-                "bg-red-500/40": status === "inactive",
+                "bg-red-500/40": status === "banned",
             })}>{status as string}</div>
         )
     }

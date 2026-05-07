@@ -160,7 +160,7 @@ const AppSidebar = () => {
                         <SidebarMenu>
                             <SidebarMenuItem>
                                 <SidebarMenuButton asChild style={{ backgroundColor: 'transparent' }}>
-                                    <Link href="/Users">
+                                    <Link href="/users">
                                         <User/>
                                         See all Users
                                     </Link>
