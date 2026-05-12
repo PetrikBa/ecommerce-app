@@ -2,8 +2,11 @@ import { Card, CardContent, CardTitle } from "@/components/ui/card";
 import { CardFooter } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import Image from "next/image";
+import { ProductsType } from "../../../packages/types/src/product";
+import { OrderType } from "../../../packages/types/src/order";
+import { auth } from "@clerk/nextjs/server";
 
-const popularProducts = [
+/* const popularProducts = [
   {
     id: 1,
     name: "Adidas CoreFit T-Shirt",
@@ -119,19 +122,41 @@ const latestTransactions = [
       "https://images.pexels.com/photos/1680175/pexels-photo-1680175.jpeg?auto=compress&cs=tinysrgb&w=800",
     count: 1400,
   },
-];
+]; */
 
-const CardList = ({ title }: { title: string }) => {
+const CardList = async ({ title }: { title: string }) => {
+
+  let products: ProductsType = [];
+  let orders: OrderType[] = [];
+
+  const { getToken } = await auth();
+  const token = await getToken();
+
+  if(title === "Popular products") {
+    products = await fetch(`${process.env.NEXT_PUBLIC_PRODUCT_SERVICE_URL}/products?limit=5`)
+    .then(res => res.json())
+    .then(data => Array.isArray(data?.products) ? data.products : [])
+    .catch(() => []); 
+  } else {
+    orders = await fetch(`${process.env.NEXT_PUBLIC_ORDER_SERVICE_URL}/orders?limit=5`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+    .then(res => res.json())
+    .then(data => Array.isArray(data) ? data : [])
+    .catch(() => []);
+  }
    
     return (
         <div className="">
             <h1 className="text-lg font-medium mb-6">{title}</h1>
             <div className="flex flex-col gap-2">
-              {title === "Popular products" ? popularProducts.map((item) => (
+              {title === "Popular products" ? products.map((item) => (
                 <Card key={item.id} className="flex-row items-center justify-between gap-4 p-4">
                         <div className="w-12 h-12 rounded-sm relative overflow-hidden">
                         <Image
-                            src={Object.values(item.images)[0] || ""}
+                            src={Object.values(item.images as Record<string, string>)[0] || ""}
                             alt={item.name}
                             fill
                             sizes="48px"
@@ -141,24 +166,24 @@ const CardList = ({ title }: { title: string }) => {
                         <CardContent className="flex-1 p-0">
                             <CardTitle className="text-sm font-medium">{item.name}</CardTitle>
                         </CardContent>
-                        <CardFooter className="p-0">${item.price}K</CardFooter>
+                        <CardFooter className="p-0">$ {item.price / 100}</CardFooter>
                     </Card>
-              )) : latestTransactions.map((item) => (
-                <Card key={item.id} className="flex-row items-center justify-between gap-4 p-4">
+              )) : orders.map((item) => (
+                <Card key={item._id} className="flex-row items-center justify-between gap-4 p-4">
                         <div className="w-12 h-12 rounded-sm relative overflow-hidden">
-                        <Image
+                        {/* <Image
                             src={item.image}
                             alt={item.title}
                             fill
                             sizes="48px"
                             className="object-cover"
-                        />
+                        /> */}
                         </div>
                         <CardContent className="flex-1 p-0">
-                            <CardTitle className="text-sm font-medium">{item.title}</CardTitle>
-                            <Badge variant="secondary">{item.badge}</Badge>
+                            <CardTitle className="text-sm font-medium">{item.email}</CardTitle>
+                            <Badge variant="secondary">{item.status}</Badge>
                         </CardContent>
-                        <CardFooter className="p-0">${item.count / 1000}K</CardFooter>
+                        <CardFooter className="p-0">${item.amount / 100}</CardFooter>
                     </Card>
               ))}
             </div>

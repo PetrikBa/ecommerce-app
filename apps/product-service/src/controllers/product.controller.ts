@@ -80,9 +80,9 @@ export const getProducts = async (req:Request, res:Response) => {
 
     const products = await prisma.product.findMany({
         where:{
-            category: {
+            category: (category && category !== "all") ? {
                 slug: category as string,
-            },
+            } : undefined,
             OR: search ? [
                 { name: { contains: search as string, mode: "insensitive" } },
                 { description: { contains: search as string, mode: "insensitive" } },
@@ -91,7 +91,7 @@ export const getProducts = async (req:Request, res:Response) => {
         orderBy,
         take: limit ? Number(limit) : undefined,
     });
-    res.status(200).json(products);   
+    res.status(200).json({ products });   
 
 }
 

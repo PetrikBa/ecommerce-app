@@ -21,6 +21,11 @@ import {
 import { DataTablePagination } from "@/components/TablePaginaton"
 import { useState } from "react"
 import { Trash2 } from "lucide-react"
+import { useAuth } from "@clerk/nextjs"
+import { useMutation } from "@tanstack/react-query"
+import { toast } from "react-toastify";
+import { User } from "@clerk/nextjs/server"
+import { useRouter } from "next/navigation"
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[]
@@ -51,13 +56,44 @@ export function DataTable<TData, TValue>({
     getSortedRowModel: getSortedRowModel(),
   })
 
+  const { getToken } = useAuth();
+  const router = useRouter();
+
+  const mutation = useMutation({
+    mutationFn: async () => {
+      const token = await getToken();
+      const selectedRows = table.getSelectedRowModel().rows;
+
+      await Promise.all(selectedRows.map(async (row) => {
+        const userId = (row.original as User).id; 
+        const response = await fetch(`${process.env.NEXT_PUBLIC_AUTH_SERVICE_URL}/users/${userId}`, {
+        method: "DELETE",
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      }))
+    },
+    onSuccess: () => {
+      toast.success("User(s) deleted successfully");
+      router.refresh();
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    }
+  })
+
   return (
     <div className="overflow-hidden rounded-md border">
       {Object.keys(rowSelection).length > 0 && (
         <div className="flex justify-end">
-          <button className="flex items-center gap-2 bg-red-500 text-white px-2 py-1 text-sm rounded-md m-4 cursor-pointer">
-              <Trash2 className="h-4 w-4" />
-              Delete user(s)
+          <button
+            className="flex items-center gap-2 bg-red-500 text-white px-2 py-1 text-sm rounded-md m-4 cursor-pointer"
+            onClick={() => mutation.mutate()}
+            disabled={mutation.isPending}
+          > 
+            <Trash2 className="h-4 w-4" />
+            {mutation.isPending ? "Deleting..." : "Delete user(s)"} 
           </button>
         </div>
       )}

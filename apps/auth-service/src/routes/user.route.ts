@@ -16,10 +16,19 @@ router.get('/:id', async (req, res) => {
 });
 
 router.post('/', async (req, res) => {
-    type CreateParams = Parameters<typeof clerkClient.users.createUser>[0];
-    const newUser:CreateParams = req.body;
-    const user = await clerkClient.users.createUser(newUser);
-    res.status(200).json(user);
+    try {
+        type CreateParams = Parameters<typeof clerkClient.users.createUser>[0];
+        const newUser: CreateParams = req.body;
+        const user = await clerkClient.users.createUser(newUser);
+        res.status(200).json(user);
+    } catch (err: any) {
+        const status = err.status || 500;
+        const errors = err.errors || [];
+        const message = errors.length > 0
+            ? errors.map((e: any) => e.longMessage || e.message).join(", ")
+            : err.message || "Internal server error";
+        res.status(status).json({ message });
+    }
 });
 
 router.delete('/:id', async (req, res) => {

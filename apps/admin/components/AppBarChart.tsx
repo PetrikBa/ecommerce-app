@@ -1,15 +1,17 @@
 "use client";
 import { ChartContainer, ChartLegend, ChartLegendContent, ChartTooltip, ChartTooltipContent, type ChartConfig } from "@/components/ui/chart";
+import { OrderChartType } from "@repo/types";
+import { use } from "react";
 import { Bar, BarChart, CartesianGrid, XAxis, YAxis } from "recharts";
 
-const chartData = [
-        { month: "January", total: 186, successful: 80 },
-        { month: "February", total: 305, successful: 200 },
-        { month: "March", total: 237, successful: 120 },
-        { month: "April", total: 73, successful: 190 },
-        { month: "May", total: 209, successful: 130 },
-        { month: "June", total: 214, successful: 140 },
-    ];
+/* const chartData = [
+    { month: "January", total: 186, successful: 80 },
+    { month: "February", total: 305, successful: 200 },
+    { month: "March", total: 237, successful: 120 },
+    { month: "April", total: 73, successful: 190 },
+    { month: "May", total: 209, successful: 130 },
+    { month: "June", total: 214, successful: 140 },
+]; */
 
 const chartConfig = {
     total: {
@@ -22,7 +24,12 @@ const chartConfig = {
     },
 } satisfies ChartConfig
 
-const AppBarChart = () => {
+const AppBarChart = ({
+  dataPromise,
+}: {
+  dataPromise: Promise<OrderChartType[]>;
+}) => {
+  const chartData = use(dataPromise);
    
     return (
         <div>

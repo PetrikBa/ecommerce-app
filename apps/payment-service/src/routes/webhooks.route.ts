@@ -72,3 +72,4 @@ webHookRoute.post('/stripe', async (c) => {
 export default webHookRoute;
 
 //stripe listen --forward-to localhost:8002/webhooks/stripe
+//stripe listen --forward-to http://127.0.0.1:8002/webhooks/stripe

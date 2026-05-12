@@ -28,8 +28,10 @@ import { Button } from "./ui/button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "./ui/select";
 import { Checkbox } from "./ui/checkbox";
 import { ScrollArea } from "./ui/scroll-area";
+import { CategoryType, colors, ProductFormSchema, sizes } from "@repo/types";
+import { useQuery } from "@tanstack/react-query";
 
-const categories = [
+/* const categories = [
   "T-shirts",
   "Shoes",
   "Accessories",
@@ -37,75 +39,37 @@ const categories = [
   "Dresses",
   "Jackets",
   "Gloves",
-] as const;
+] as const; */
 
-const colors = [
-  "blue",
-  "green",
-  "red",
-  "yellow",
-  "purple",
-  "orange",
-  "pink",
-  "brown",
-  "gray",
-  "black",
-  "white",
-] as const;
+const fetchCategories = async () => {
+  const response = await fetch(`${process.env.NEXT_PUBLIC_PRODUCT_SERVICE_URL}/categories`);
 
-const sizes = [
-  "xs",
-  "s",
-  "m",
-  "l",
-  "xl",
-  "xxl",
-  "34",
-  "35",
-  "36",
-  "37",
-  "38",
-  "39",
-  "40",
-  "41",
-  "42",
-  "43",
-  "44",
-  "45",
-  "46",
-  "47",
-  "48",
-] as const;
+  if(!response.ok) {
+    throw new Error("Failed to fetch categories");
+  }
 
-const formSchema = z.object({
-  name: z.string().min(1, "Name must be at least 1 character long"),
-  shortDescription: z.string().min(1, "Short description must be at least 5 characters long").max(60),
-  description: z.string().min(1, "Description must be at least 1 character long"),
-  price: z.number().min(0, "Price must be a positive number"), 
-  category: z.enum(categories),
-  colors: z.array(z.enum(colors)),
-  sizes: z.array(z.enum(sizes)),
-  images: z.record(z.enum(colors), z.string()),
-})
+  return await response.json();
+}
 
 const AddProduct = () => {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof ProductFormSchema>>({
+    resolver: zodResolver(ProductFormSchema),
     defaultValues: {
       name: "",
       shortDescription: "",
       description: "",
       price: 0,
-      category: "T-shirts",
+      categorySlug: "",
       colors: [],
       sizes: [],
       images: {},
     },
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    toast.success(`Product ${values.name} added`)
-  }
+  const { isPending, error, data } = useQuery({
+    queryKey: ['categories'],
+    queryFn: fetchCategories,      
+  })
 
   return (
     <SheetContent>
@@ -115,7 +79,7 @@ const AddProduct = () => {
           <SheetDescription asChild>
             <div className="flex flex-col gap-0.5 p-4">
           <Form {...form}>
-            <form className="space-y-8" onSubmit={form.handleSubmit(onSubmit)}>
+            <form className="space-y-8">
               <FormField
                 control={form.control}
                 name="name"
@@ -180,21 +144,22 @@ const AddProduct = () => {
                   </FormItem>
                 )}
               />
-              <FormField
-                control={form.control}
-                name="category"
-                  render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Category</FormLabel>
+              {data && (
+                <FormField
+                  control={form.control}
+                  name="categorySlug"
+                    render={({ field }) => (
+                    <FormItem>
+                      <FormLabel>Category</FormLabel>
                     <FormControl>
                       <Select onValueChange={field.onChange} value={field.value}>
                         <SelectTrigger className="w-full">
                           <SelectValue placeholder="Select a category" />
                         </SelectTrigger>
                         <SelectContent>
-                          {categories.map((category) => (
-                            <SelectItem key={category} value={category}>
-                              {category}
+                          {data.map((cat:CategoryType) => (
+                            <SelectItem key={cat.id} value={cat.slug}>
+                              {cat.name}
                             </SelectItem>
                           ))}
                         </SelectContent>
@@ -205,6 +170,7 @@ const AddProduct = () => {
                   </FormItem>
                 )}
               />
+              )}
               <FormField
                 control={form.control}
                 name="sizes"

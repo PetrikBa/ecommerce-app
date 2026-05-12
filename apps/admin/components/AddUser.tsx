@@ -9,7 +9,7 @@ import {
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { toast } from "sonner"
+import { toast } from "react-toastify";
 import * as z from "zod/v4"
 import {
   Form,
@@ -23,22 +23,55 @@ import {
 import { Input } from "./ui/input";
 
 import { Button } from "./ui/button";
-
-const formSchema = z.object({
-  fullname: z.string().min(2, "Full name must be at least 2 characters long"),
-  email: z.email("Invalid email address").min(5, "Email must be at least 5 characters long"),
-  phone: z.string().min(10, "Phone number must be at least 10 characters long"),
-  address: z.string().min(2, "Address must be at least 2 characters long"), 
-  city: z.string().min(2, "City must be at least 2 characters long"), 
-})
+import { useAuth } from "@clerk/nextjs";
+import { useMutation } from "@tanstack/react-query";
+import { UserFormSchema } from "@repo/types";
+import { useRouter } from "next/navigation";
 
 const AddUser = () => {
-  const form = useForm<z.infer<typeof formSchema>>({
-    resolver: zodResolver(formSchema),
+  const form = useForm<z.infer<typeof UserFormSchema>>({
+    resolver: zodResolver(UserFormSchema),
+    defaultValues: {
+      firstName: "",
+      lastName: "",
+      userName: "",
+      emailAddress: [],
+      password: "",
+    }
   })
 
-  function onSubmit(values: z.infer<typeof formSchema>) {
-    toast.success(`User ${values.fullname} added`)
+  const { getToken } = useAuth();
+  const router = useRouter();
+
+  const mutation = useMutation({
+    mutationFn: async (data: z.infer<typeof UserFormSchema>) => {
+      const token = await getToken();
+      const { userName, ...rest } = data;
+      const response = await fetch(`${process.env.NEXT_PUBLIC_AUTH_SERVICE_URL}/users`, {
+        method: "POST",
+        body: JSON.stringify({ ...rest, username: userName }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if(!response.ok) {
+        const errorText = await response.text();
+        throw new Error(errorText || "Failed to add user");
+      }
+    },
+    onSuccess: () => {
+      toast.success("User added successfully");
+      form.reset();
+      router.refresh();
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    }
+  })
+
+  function onSubmit(values: z.infer<typeof UserFormSchema>) {
+    mutation.mutate(values);
   }
 
   return (
@@ -48,15 +81,18 @@ const AddUser = () => {
         <SheetDescription asChild>
           <div className="flex flex-col gap-0.5 p-4">
         <Form {...form}>
-          <form className="space-y-8" onSubmit={form.handleSubmit(onSubmit)}>
+          <form 
+            className="space-y-8" 
+            onSubmit={form.handleSubmit((data) => mutation.mutate(data))}
+          >
             <FormField
               control={form.control}
-              name="fullname"
+              name="firstName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Full name</FormLabel>
+                  <FormLabel>First Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="John Doe" {...field} />
+                    <Input placeholder="John" {...field} />
                   </FormControl>
                   <FormDescription>
                     This name will be visible in the dashboard.
@@ -67,12 +103,51 @@ const AddUser = () => {
             />
             <FormField
               control={form.control}
-              name="email"
+              name="lastName"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>Last Name</FormLabel>
                   <FormControl>
-                    <Input placeholder="john.doe@example.com" {...field} />
+                    <Input placeholder="Doe" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    This name will be visible in the dashboard.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="userName"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Username</FormLabel>
+                  <FormControl>
+                    <Input placeholder="johndoe" {...field} />
+                  </FormControl>
+                  <FormDescription>
+                    This name will be visible in the dashboard.
+                  </FormDescription>
+                  <FormMessage />
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="emailAddress"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Email addresses</FormLabel>
+                  <FormControl>
+                    <Input 
+                      placeholder="john.doe@example.com , john.doe2@example.com" 
+                      {...field} 
+                      onChange={e=> {
+                        const emails = e.target.value.split(",").map(email => email.trim()).filter((email) => email);
+                        field.onChange(emails);
+                      }}
+                    />
                   </FormControl>
                   <FormDescription>Enter a valid email address</FormDescription>
                   <FormMessage />
@@ -81,47 +156,24 @@ const AddUser = () => {
             />
             <FormField
               control={form.control}
-              name="phone"
+              name="password"
                 render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Phone</FormLabel>
+                  <FormLabel>Password</FormLabel>
                   <FormControl> 
-                    <Input placeholder="+1 234 567 890" {...field} />
+                    <Input placeholder="********" {...field} type="password" />
                   </FormControl>
-                  <FormDescription>Enter phone number in correct format</FormDescription>    
+                  <FormDescription>Enter password</FormDescription>    
                     <FormMessage />
                 </FormItem>
               )}
             />
-            <FormField
-              control={form.control}
-              name="address"
-                render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Address</FormLabel>
-                  <FormControl> 
-                    <Input placeholder="123 Main St, New York, USA" {...field} />
-                  </FormControl>
-                  <FormDescription>Enter address</FormDescription>    
-                    <FormMessage />
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="city"
-                render={({ field }) => (
-                <FormItem>
-                  <FormLabel>City</FormLabel>
-                  <FormControl> 
-                    <Input placeholder="New York" {...field} />
-                  </FormControl>
-                  <FormDescription>Enter city</FormDescription>    
-                    <FormMessage />
-                </FormItem>
-              )}
-            />
-            <Button type="submit">Save changes</Button>
+            <Button 
+              type="submit" 
+              disabled={mutation.isPending} 
+              className="disabled:opacity-50 disabled:cursor-not-allowed"
+            >{mutation.isPending ? "Submitting..." : "Add User"}
+            </Button>
           </form>
         </Form>
       </div>
