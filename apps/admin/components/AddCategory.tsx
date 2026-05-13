@@ -106,7 +106,8 @@ const AddCategory = () => {
               type="submit" 
               disabled={mutation.isPending} 
               className="disabled:opacity-50 disabled:cursor-not-allowed"
-            >{mutation.isPending ? "Submitting..." : "Add Category"}</Button>
+            >{mutation.isPending ? "Submitting..." : "Add Category"}
+            </Button>
           </form>
         </Form>
       </div>

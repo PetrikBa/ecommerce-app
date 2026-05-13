@@ -42,7 +42,6 @@ const ShippingForm = ({setShippingForm}:{setShippingForm:(data: ShippingFormInpu
                     id="email" 
                     placeholder="john.doe@example.com" 
                     {...register("email")} 
-                    value="test@test.test"
                 />
                 {errors.email && <p className="text-xs text-red-500">{errors.email.message}</p>}
             </div>

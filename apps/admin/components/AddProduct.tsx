@@ -11,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea"
 
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
-import { toast } from "sonner"
+import { toast } from "react-toastify";
 import * as z from "zod/v4"
 import {
   Form,
@@ -29,7 +29,8 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from ".
 import { Checkbox } from "./ui/checkbox";
 import { ScrollArea } from "./ui/scroll-area";
 import { CategoryType, colors, ProductFormSchema, sizes } from "@repo/types";
-import { useQuery } from "@tanstack/react-query";
+import { useMutation, useQuery } from "@tanstack/react-query";
+import { useAuth } from "@clerk/nextjs";
 
 /* const categories = [
   "T-shirts",
@@ -71,6 +72,32 @@ const AddProduct = () => {
     queryFn: fetchCategories,      
   })
 
+  const { getToken } = useAuth();
+
+  const mutation = useMutation({
+    mutationFn: async (data: z.infer<typeof ProductFormSchema>) => {
+      const token = await getToken();
+      const response = await fetch(`${process.env.NEXT_PUBLIC_PRODUCT_SERVICE_URL}/products`, {
+        method: "POST",
+        body: JSON.stringify({ ...data, price: Math.round(data.price * 100) }),
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+      });
+      if(!response.ok) {
+        throw new Error("Failed to add product");
+      }
+    },
+    onSuccess: () => {
+      toast.success("Product added successfully");
+      form.reset();
+    },
+    onError: (error) => {
+      toast.error(error.message);
+    }
+  })
+
   return (
     <SheetContent>
       <ScrollArea className="h-screen">
@@ -79,7 +106,10 @@ const AddProduct = () => {
           <SheetDescription asChild>
             <div className="flex flex-col gap-0.5 p-4">
           <Form {...form}>
-            <form className="space-y-8">
+            <form 
+              className="space-y-8"
+              onSubmit={form.handleSubmit((data) => mutation.mutate(data))}
+            >
               <FormField
                 control={form.control}
                 name="name"
@@ -248,24 +278,6 @@ const AddProduct = () => {
                             );
                           })}
                         </div>
-
-                        {field.value && field.value.length > 0 && (
-                          <div className="space-y-2">
-                            <p className="text-sm text-muted-foreground">
-                              Upload images for the selected colors
-                            </p>
-                            {field.value.map((color) => (
-                              <div key={color} className="flex items-center gap-3">
-                                <span
-                                  className="inline-block h-3.5 w-3.5 shrink-0 rounded-full border border-white/20"
-                                  style={{ backgroundColor: color }}
-                                />
-                                <span className="min-w-20 break-words capitalize">{color}</span>
-                                <Input type="file" accept="image/*" className="max-w-xs" />
-                              </div>
-                            ))}
-                          </div>
-                        )}
                       </div>
                     </FormControl>
                     <FormDescription>Select available colors</FormDescription>
@@ -273,7 +285,70 @@ const AddProduct = () => {
                   </FormItem>
                 )}
               />
-              <Button type="submit">Save changes</Button>
+              <FormField
+                control={form.control}
+                name="images"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Images</FormLabel>
+                    <FormControl>
+                      <div className="">
+                        {form.watch("colors")?.map((color) => (
+                          <div key={color} className="mb-4 flex items-center gap-4">
+                            <div className="flex items-center gap-2">
+                              <div className="w-4 h-4 rounded-full" style={{ backgroundColor: color }} />
+                              <span className="capitalize text-sm min-w-[80px]">{color}</span>
+                            </div>
+                            <Input 
+                              type="file"
+                              accept="image/*" 
+                              className="" 
+                              onChange={async (e)=> {
+                                const file = e.target.files?.[0];
+                                if (file) {
+                                  try {
+                                    const formData = new FormData();
+                                    formData.append("file", file);
+                                    formData.append("upload_preset", "ecommerce");
+
+                                    const response = await fetch(`https://api.cloudinary.com/v1_1/${process.env.NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME}/upload`, {
+                                      method: "POST",
+                                      body: formData,
+                                    });
+
+                                    const data = await response.json();
+
+                                    if(data.secure_url) {
+                                      const currentImages = form.getValues("images") || {}
+                                      form.setValue("images", {
+                                        ...currentImages,
+                                        [color]: data.secure_url,
+                                      });
+                                    }
+                                  } catch (error) { 
+                                    console.log("Error uploading image:", error);
+                                    toast.error("Failed to upload image");
+                                  }
+                              }}
+                            }
+                            />
+                            {field.value?.[color] ? <span className="text-green-600 text-sm">Image selected</span> :  <span className="text-red-600 text-sm">Image required</span>}
+
+                            </div>
+                        ))}
+                      </div>
+                    </FormControl>
+                    <FormDescription>Upload images for each color variant</FormDescription>
+                    <FormMessage />
+                  </FormItem>
+                  )}
+              />
+              <Button 
+              type="submit" 
+              disabled={mutation.isPending} 
+              className="disabled:opacity-50 disabled:cursor-not-allowed mb-16"
+            >{mutation.isPending ? "Submitting..." : "Add Product"}
+            </Button>
             </form>
           </Form>
         </div>

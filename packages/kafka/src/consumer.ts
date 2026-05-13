@@ -18,9 +18,10 @@ export const createConsumer = (kafka: Kafka, groupId: string) => {
       subscriptions.map(({ topicName, topicHandler }) => [topicName, topicHandler])
     );
 
-    for (const { topicName } of subscriptions) {
-      await consumer.subscribe({ topic: topicName, fromBeginning: true });
-    }
+    await consumer.subscribe({
+      topics: subscriptions.map(({ topicName }) => topicName),
+      fromBeginning: true,
+    });
 
     await consumer.run({
       eachMessage: async ({ topic, message }) => {

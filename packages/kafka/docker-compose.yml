@@ -14,6 +14,7 @@ services:
       KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_KRAFT_CLUSTER_ID: 7Dvn0OLMQo-bg4qmCmflVg
       ALLOW_PLAINTEXT_LISTENER: "yes"
+    restart: unless-stopped
     ports:
       - "9094:9094"
     networks:
@@ -33,6 +34,7 @@ services:
       KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_KRAFT_CLUSTER_ID: 7Dvn0OLMQo-bg4qmCmflVg
       ALLOW_PLAINTEXT_LISTENER: "yes"
+    restart: unless-stopped
     ports:
       - "9095:9095"
     networks:
@@ -52,6 +54,7 @@ services:
       KAFKA_CFG_INTER_BROKER_LISTENER_NAME: PLAINTEXT
       KAFKA_KRAFT_CLUSTER_ID: 7Dvn0OLMQo-bg4qmCmflVg
       ALLOW_PLAINTEXT_LISTENER: "yes"
+    restart: unless-stopped
     ports:
       - "9096:9096"
     networks:
@@ -64,6 +67,7 @@ services:
       KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka-broker-1:9092,kafka-broker-2:9092,kafka-broker-3:9092
       KAFKA_CLUSTERS_0_READONLY: false
       KAFKA_CLUSTERS_0_TOPIC_AUTO_CREATE: true
+    restart: unless-stopped
     ports:
       - "8080:8080"
     depends_on:

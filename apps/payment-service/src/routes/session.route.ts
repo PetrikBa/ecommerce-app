@@ -2,7 +2,6 @@ import { Hono } from 'hono';
 import $stripe from 'stripe';
 import { shouldBeUser } from '../middleware/authMiddleware';
 import { CartItemsType } from '@repo/types';
-import { getStripeProductPrice } from '../utils/stripeProduct';
 
 const sessionRoute = new Hono;
 
@@ -17,21 +16,16 @@ sessionRoute.post('/create-checkout-session', shouldBeUser, async (c) => {
     const userId = c.get('userId');
 
     try {
-    const lineItems = await Promise.all(
-        cart.map(async (item) => {
-            const unitAmount = await getStripeProductPrice(item.id);
-            return {
-                price_data: {
-                    currency: 'usd',
-                    product_data: {
-                        name: item.name,
-                    },
-                    unit_amount: unitAmount as number,
-                },
-                quantity: item.quantity,
-            }
-        })
-    );
+    const lineItems = cart.map((item) => ({
+        price_data: {
+            currency: 'usd',
+            product_data: {
+                name: item.name,
+            },
+            unit_amount: item.price,
+        },
+        quantity: item.quantity,
+    }));
     const session = await stripe.checkout.sessions.create({
         line_items: lineItems,
         client_reference_id: userId,
