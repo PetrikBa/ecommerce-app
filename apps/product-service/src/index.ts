@@ -44,8 +44,8 @@ const start = async () => {
             await producer.connect(),
             await consumer.connect()
         ])
-        app.listen(8000, () => {
-            console.log('Product service is running on port 8000');
+        app.listen(Number(process.env.PORT) || 8000, () => {
+            console.log(`Product service is running on port ${process.env.PORT || 8000}`);
         });
     } catch (error) {
         console.error('Error starting server:', error);
