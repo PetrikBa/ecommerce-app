@@ -33,8 +33,8 @@ app.use((err: any, req: Request, res: Response, next: Function) => {
 const start = async () => {
     try {
         await producer.connect();
-        app.listen(8003, () => {
-            console.log('Auth service is running on port 8003');
+        app.listen(Number(process.env.PORT) || 8003, () => {
+            console.log(`Auth service is running on port ${process.env.PORT || 8003}`);
         });
     } catch (error) {
         console.error('Error starting server:', error);

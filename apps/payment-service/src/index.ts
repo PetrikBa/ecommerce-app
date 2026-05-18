@@ -42,7 +42,8 @@ const start = async () => {
     serve (
       {
       fetch: app.fetch,
-      port: 8002,
+      port: Number(process.env.PORT) || 8002,
+      hostname: '0.0.0.0',
       },
     (info) => {
       console.log('Payment service is running on port 8002')
