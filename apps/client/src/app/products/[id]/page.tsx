@@ -6,9 +6,14 @@ import { Suspense } from "react";
 
 
 const fetchProduct = async ({id}: {id: string}) => {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_PRODUCT_SERVICE_URL}/products/${id}`);
-  const data: ProductType = await res.json();
-  return data;
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_PRODUCT_SERVICE_URL}/products/${id}`, { next: { revalidate: 60 } });
+    if (!res.ok) return null;
+    const data: ProductType = await res.json();
+    return data;
+  } catch {
+    return null;
+  }
 }
 
 export const generateMetadata = async ({ 

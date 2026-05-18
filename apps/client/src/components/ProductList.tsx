@@ -8,11 +8,16 @@ import { Suspense } from "react";
 const fetchData = async ({
   category, search, sort, params
 }: { category?: string, search?: string, sort?: string, params?: "homepage" | "products" }) => {
-  const res = await fetch(`${process.env.NEXT_PUBLIC_PRODUCT_SERVICE_URL}/products?${category ? `category=${category}` : ""}${search ? `&search=${search}` : ""}&sort=${sort || "newest"}${params === "homepage" ? "&limit=8" : ""}`
-  );
-
-  const { products: data }: { products: ProductsType } = await res.json();
-  return data;
+  try {
+    const res = await fetch(`${process.env.NEXT_PUBLIC_PRODUCT_SERVICE_URL}/products?${category ? `category=${category}` : ""}${search ? `&search=${search}` : ""}&sort=${sort || "newest"}${params === "homepage" ? "&limit=8" : ""}`,
+      { next: { revalidate: 60 } }
+    );
+    if (!res.ok) return [] as ProductsType;
+    const { products: data }: { products: ProductsType } = await res.json();
+    return data;
+  } catch {
+    return [] as ProductsType;
+  }
 }
 
 const ProductList = async ({ category, sort, search, params }: { 
