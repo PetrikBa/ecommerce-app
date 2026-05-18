@@ -13,21 +13,23 @@ const stripe = loadStripe(
 );
 
 const fetchClientSecret = async (cart: CartItemsType, token: string) => {
-  return fetch(
+  const response = await fetch(
     `${process.env.NEXT_PUBLIC_PAYMENT_SERVICE_URL}/sessions/create-checkout-session`,
     {
       method: "POST",
-      body: JSON.stringify({
-        cart,
-      }),
+      body: JSON.stringify({ cart }),
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
     }
-  )
-    .then((response) => response.json())
-    .then((json) => json.checkoutSessionClientSecret);
+  );
+  if (!response.ok) {
+    const text = await response.text();
+    throw new Error(`Payment service error ${response.status}: ${text}`);
+  }
+  const json = await response.json();
+  return json.checkoutSessionClientSecret as string | undefined;
 };
 
 const StripePaymentForm = ({
@@ -37,14 +39,32 @@ const StripePaymentForm = ({
 }) => {
   const { cart } = useCartStore();
   const [clientSecret, setClientSecret] = useState<string | null>(null);
+  const [error, setError] = useState<string | null>(null);
   const { getToken } = useAuth();
 
   useEffect(() => {
     getToken().then((token) => {
-      if (!token) return;
-      fetchClientSecret(cart, token).then(setClientSecret);
+      if (!token) {
+        setError("Authentication error: could not get token.");
+        return;
+      }
+      fetchClientSecret(cart, token)
+        .then((secret) => {
+          if (!secret) {
+            setError("Payment service did not return a client secret. Check that the payment service is running and environment variables are set.");
+            return;
+          }
+          setClientSecret(secret);
+        })
+        .catch((err) => {
+          setError(`Failed to initialize payment: ${err?.message ?? err}`);
+        });
     });
   }, []);
+
+  if (error) {
+    return <div className="text-red-500 text-sm">{error}</div>;
+  }
 
   if (!clientSecret) {
     return <div className="">Loading...</div>;
