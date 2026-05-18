@@ -1,5 +1,7 @@
 # Ecommerce App Monorepo
 
+> **Note:** This project runs on free-tier cloud services (Render, Vercel, MongoDB Atlas, Confluent Cloud). The **first request after a period of inactivity may take up to 60 seconds** while the backend services wake up from sleep mode. Subsequent requests are fast.
+
 A production-deployed, full-stack e-commerce application built as a **monorepo** using `pnpm workspaces` and `Turborepo`.  
 The repository includes a customer-facing storefront, an admin dashboard, and separate backend microservices for authentication, products, orders, payments, and email notifications — connected via an Apache Kafka event bus.
 
