@@ -10,7 +10,7 @@ import { runKafkaSubscriptions } from './utils/subscriptions.js';
 const fastify = Fastify();
 
 fastify.register(cors, {
-    origin: ['http://localhost:3002', 'http://localhost:3003'],
+    origin: ['http://localhost:3002', 'http://localhost:3003', 'https://ecommerce-app-admin-azure.vercel.app'],
     credentials: true,
 });
 
