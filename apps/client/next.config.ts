@@ -33,7 +33,7 @@ const nextConfig: NextConfig = {
               "img-src 'self' data: https://*.stripe.com https://img.clerk.com https://res.cloudinary.com",
               "frame-src 'self' https://js.stripe.com https://hooks.stripe.com https://clerk.com https://*.clerk.com",
               "worker-src 'self' blob:",
-              "connect-src 'self' http://localhost:8000 http://localhost:8001 http://localhost:8002 https://api.stripe.com https://clerk.com https://*.clerk.com wss://*.clerk.com https://*.clerk.accounts.dev wss://*.clerk.accounts.dev",
+              "connect-src 'self' http://localhost:8000 http://localhost:8001 http://localhost:8002 https://product-service-1f2s.onrender.com https://order-service-v5v9.onrender.com https://payment-service-yjqo.onrender.com https://api.stripe.com https://clerk.com https://*.clerk.com wss://*.clerk.com https://*.clerk.accounts.dev wss://*.clerk.accounts.dev",
             ].join("; "),
           },
         ],

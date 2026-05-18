@@ -11,7 +11,7 @@ import { runKafkaSubscriptions } from './utils/subscriptions.js'
 const app = new Hono()
 
 app.use('*', cors({
-  origin: ['http://localhost:3002', 'https://ecommerce-app-admin-azure.vercel.app'],
+  origin: ['http://localhost:3002', 'https://ecommerce-app-admin-azure.vercel.app', 'https://ecommerce-app-client-brown.vercel.app'],
   credentials: true,
 }))
 app.use('*', clerkMiddleware())
