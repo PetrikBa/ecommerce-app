@@ -1,7 +1,19 @@
 # Ecommerce App Monorepo
 
-A modern e-commerce project built as a **monorepo** using `pnpm workspaces` and `Turborepo`.
+A production-deployed, full-stack e-commerce application built as a **monorepo** using `pnpm workspaces` and `Turborepo`.  
 The repository includes a customer-facing storefront, an admin dashboard, and separate backend microservices for authentication, products, orders, payments, and email notifications — connected via an Apache Kafka event bus.
+
+---
+
+## 🌐 Live Demo
+
+| App | URL |
+| --- | --- |
+| **Customer storefront** | https://ecommerce-app-client-brown.vercel.app |
+| **Admin dashboard** | https://ecommerce-app-admin-azure.vercel.app |
+
+> Backend services are hosted on [Render](https://render.com) (free tier — first request may take ~30s to wake up).  
+> Use Stripe test card `4242 4242 4242 4242` (any future expiry, any CVC) to test payments.
 
 ---
 
@@ -86,9 +98,27 @@ The project is organized as a **monorepo**, which means multiple applications an
 | `packages/order-db` | MongoDB | Mongoose 9 |
 
 ### Messaging / Event Bus
-- `Apache Kafka` (KRaft mode, 3-broker cluster) — event-driven communication between services
+- `Apache Kafka` — event-driven communication between services
 - `KafkaJS` — Kafka client for Node.js
-- `Docker` + `Docker Compose` — Kafka broker infrastructure
+- **Local development**: Kafka via Docker Compose (`packages/kafka/docker-compose.yml`)
+- **Production**: [Confluent Cloud](https://confluent.io) (managed Kafka, SASL/PLAIN auth)
+
+---
+
+## 🚀 Deployment
+
+| Layer | Platform | Notes |
+| --- | --- | --- |
+| `client` | Vercel | Next.js, auto-deploy from `main` |
+| `admin` | Vercel | Next.js, auto-deploy from `main` |
+| `product-service` | Render | Node web service |
+| `order-service` | Render | Node web service |
+| `payment-service` | Render | Node web service |
+| `auth-service` | Render | Node web service |
+| `email-service` | Render | Node web service (HTTP health endpoint + Kafka consumer) |
+| PostgreSQL | Render | Managed PostgreSQL 18 |
+| MongoDB | MongoDB Atlas | Managed cluster |
+| Kafka | Confluent Cloud | Managed Kafka, GCP europe-west3 |
 
 ---
 
@@ -122,12 +152,12 @@ The project is organized as a **monorepo**, which means multiple applications an
 
 ---
 
-## 🚀 Running the Project
+## 🚀 Running Locally
 
 ### Requirements
 - `Node.js >= 18`
 - `pnpm >= 9`
-- `Docker` (for Kafka)
+- `Docker` (for local Kafka)
 
 ### Installation
 ```bash
@@ -144,6 +174,51 @@ docker compose up -d
 ```bash
 pnpm --filter @repo/product-db db:migrate
 pnpm --filter @repo/product-db db:generate
+```
+
+### Environment variables
+
+Each service reads from its own `.env` file. Required variables per service:
+
+**`apps/client`**
+```env
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
+CLERK_SECRET_KEY=
+NEXT_PUBLIC_PRODUCT_SERVICE_URL=http://localhost:8000
+NEXT_PUBLIC_ORDER_SERVICE_URL=http://localhost:8001
+NEXT_PUBLIC_PAYMENT_SERVICE_URL=http://localhost:8002
+NEXT_PUBLIC_STRIPE_PUBLISHABLE_KEY=
+```
+
+**`apps/admin`**
+```env
+NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
+CLERK_SECRET_KEY=
+NEXT_PUBLIC_PRODUCT_SERVICE_URL=http://localhost:8000
+NEXT_PUBLIC_ORDER_SERVICE_URL=http://localhost:8001
+DATABASE_URL=
+```
+
+**`apps/payment-service`**
+```env
+CLERK_PUBLISHABLE_KEY=
+CLERK_SECRET_KEY=
+STRIPE_SECRET_KEY=
+STRIPE_WEBHOOK_SECRET=        # from Stripe dashboard (production endpoint)
+STRIPE_WEBHOOK_SECRET_LOCAL=  # from: stripe listen --forward-to ...
+CLIENT_URL=http://localhost:3002
+```
+
+**All backend services** also need Kafka credentials if using Confluent Cloud:
+```env
+KAFKA_BROKERS=
+KAFKA_USERNAME=
+KAFKA_PASSWORD=
+```
+
+### Stripe webhook (local)
+```bash
+stripe listen --forward-to http://127.0.0.1:8002/webhooks/stripe
 ```
 
 ### Run the entire monorepo
@@ -170,6 +245,8 @@ pnpm --filter email-service dev
 | `product-service` | `8000` |
 | `order-service` | `8001` |
 | `payment-service` | `8002` |
+| `auth-service` | `8003` |
+| `email-service` | `8004` |
 
 ---
 
@@ -187,5 +264,6 @@ pnpm format       # formats project files
 
 ## 📌 Summary
 
-This project is a **full-stack e-commerce monorepo** that combines a modern frontend stack (`Next.js`, `React`, `Tailwind`) with separated backend services (`Express`, `Fastify`, `Hono`).
-Thanks to the monorepo architecture, apps and shared configurations are managed clearly in one place.
+This project is a **production-deployed full-stack e-commerce monorepo** that combines a modern frontend stack (`Next.js`, `React`, `Tailwind`) with separated backend microservices (`Express`, `Fastify`, `Hono`).  
+Services communicate asynchronously via **Apache Kafka** (Confluent Cloud in production).  
+Authentication is handled by **Clerk**, payments by **Stripe** (Embedded Checkout with webhooks), and data is stored in **PostgreSQL** (Prisma) and **MongoDB Atlas** (Mongoose).
