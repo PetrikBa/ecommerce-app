@@ -3,7 +3,11 @@ import Stripe from 'stripe';
 import stripe from '../utils/stripe';
 import { producer } from '../utils/kafka';
 
-const webhookSecret = process.env.STRIPE_WEBHOOK_SECRET as string;
+const webhookSecrets = [
+    process.env.STRIPE_WEBHOOK_SECRET,
+    process.env.STRIPE_WEBHOOK_SECRET_LOCAL,
+].filter(Boolean) as string[];
+
 const webHookRoute = new Hono();
 
 webHookRoute.post('/stripe', async (c) => {
@@ -16,18 +20,25 @@ webHookRoute.post('/stripe', async (c) => {
         return c.json({ error: 'Missing stripe-signature header' }, 400);
     }
 
-    if (!webhookSecret) {
-        console.error('[WEBHOOK] STRIPE_WEBHOOK_SECRET is not set');
+    if (webhookSecrets.length === 0) {
+        console.error('[WEBHOOK] No STRIPE_WEBHOOK_SECRET configured');
         return c.json({ error: 'Webhook secret not configured' }, 500);
     }
 
-    let event : Stripe.Event;
+    let event : Stripe.Event | null = null;
 
-    try {
-        event = stripe.webhooks.constructEvent(body, sig!, webhookSecret);
-        console.log('[WEBHOOK] Signature verified, event type:', event.type);
-    } catch (error) {
-        console.error('[WEBHOOK] Signature verification failed:', error);
+    for (const secret of webhookSecrets) {
+        try {
+            event = stripe.webhooks.constructEvent(body, sig, secret);
+            console.log('[WEBHOOK] Signature verified, event type:', event.type);
+            break;
+        } catch {
+            // try next secret
+        }
+    }
+
+    if (!event) {
+        console.error('[WEBHOOK] Signature verification failed against all secrets');
         return c.json({ error: 'Webhook verification failed' }, 400);
     }
 
