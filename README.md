@@ -12,6 +12,13 @@ The repository includes a customer-facing storefront, an admin dashboard, and se
 | **Customer storefront** | https://ecommerce-app-client-brown.vercel.app |
 | **Admin dashboard** | https://ecommerce-app-admin-azure.vercel.app |
 
+### Demo credentials
+
+| Role | Email | Password |
+| --- | --- | --- |
+| Admin | admin@app.com | Demo@2026+ |
+| Customer | register via sign-up form | — |
+
 > Backend services are hosted on [Render](https://render.com) (free tier — first request may take ~30s to wake up).  
 > Use Stripe test card `4242 4242 4242 4242` (any future expiry, any CVC) to test payments.
 
