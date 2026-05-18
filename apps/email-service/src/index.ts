@@ -1,5 +1,6 @@
 import sendMail from "./utils/mailer";
 import { createConsumer, createKafkaClient } from "@repo/kafka";
+import { createServer } from "http";
 
 const kafka = createKafkaClient("email-service");
 const consumer = createConsumer(kafka, "email-service");
@@ -36,6 +37,12 @@ const subscriptions = [
 ];
 
 const start = async () => {
+    // HTTP server so Render Web Service stays alive
+    const port = Number(process.env.PORT) || 8004;
+    createServer((_, res) => { res.writeHead(200); res.end('ok'); }).listen(port, () => {
+        console.log(`[Email service] Health check listening on port ${port}`);
+    });
+
     try {
         await consumer.connect();
         await consumer.subscribe(subscriptions);
