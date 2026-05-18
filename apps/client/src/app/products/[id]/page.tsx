@@ -2,6 +2,7 @@ import ProductInteraction from "@/components/ProductInteraction";
 import { ProductType, ProductsType } from "@repo/types";
 import Image from "next/image";
 import { notFound } from "next/navigation";
+import { Suspense } from "react";
 
 
 const fetchProduct = async ({id}: {id: string}) => {
@@ -50,7 +51,7 @@ const ProductPage = async ({params,searchParams} : {params:Promise<{id: string}>
               <h1 className="text-2xl font-medium">{product.name}</h1>
               <p className="text-sm text-gray-500">{product.description}</p>
               <h2 className="text-2xl font-semibold">${(product.price / 100).toFixed(2)}</h2>
-              <ProductInteraction product={product} selectedSize={selectedSize} selectedColor={selectedColor} />
+              <Suspense fallback={null}><ProductInteraction product={product} selectedSize={selectedSize} selectedColor={selectedColor} /></Suspense>
               {/* CARD INFO */}
               <div className="flex items-center gap-2 mt-4">
                 <Image src="/klarna.png" alt="Secure payment" width={50} height={25} className="rounded-md" />
