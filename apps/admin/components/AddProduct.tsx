@@ -12,6 +12,7 @@ import { Textarea } from "@/components/ui/textarea"
 import { zodResolver } from "@hookform/resolvers/zod"
 import { useForm } from "react-hook-form"
 import { toast } from "react-toastify";
+import { useRouter } from "next/navigation";
 import * as z from "zod/v4"
 import {
   Form,
@@ -73,6 +74,7 @@ const AddProduct = () => {
   })
 
   const { getToken } = useAuth();
+  const router = useRouter();
 
   const mutation = useMutation({
     mutationFn: async (data: z.infer<typeof ProductFormSchema>) => {
@@ -92,6 +94,7 @@ const AddProduct = () => {
     onSuccess: () => {
       toast.success("Product added successfully");
       form.reset();
+      router.refresh();
     },
     onError: (error) => {
       toast.error(error.message);

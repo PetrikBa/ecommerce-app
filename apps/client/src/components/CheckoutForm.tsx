@@ -35,7 +35,11 @@ const CheckoutForm = ({shippingForm}: {shippingForm: ShippingFormInputs}) => {
     return (
         <form className="">
             <PaymentElement options={{layout: 'accordion'}}/>
-            <button disabled={loading} onClick={handleClick}>
+            <button
+                disabled={loading}
+                onClick={handleClick}
+                className="mt-4 w-full bg-black text-white py-3 rounded-md font-medium hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed transition-colors cursor-pointer"
+            >
                 {loading ? "Processing..." : "Pay Now"}
             </button>
             {error && <div className="text-red-500">{error.message}</div>}
