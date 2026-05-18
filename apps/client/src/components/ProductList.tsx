@@ -15,17 +15,30 @@ const ProductList = ({ category, sort, search, params }: {
   }) => {
   const [products, setProducts] = useState<ProductsType>([]);
   const [loading, setLoading] = useState(true);
-  const [slow, setSlow] = useState(false);
+  const [waking, setWaking] = useState(false);
 
   useEffect(() => {
-    const slowTimer = setTimeout(() => setSlow(true), 3000);
+    let cancelled = false;
     const url = `${process.env.NEXT_PUBLIC_PRODUCT_SERVICE_URL}/products?${category ? `category=${category}` : ""}${search ? `&search=${search}` : ""}&sort=${sort || "newest"}${params === "homepage" ? "&limit=8" : ""}`;
-    fetch(url)
-      .then(res => res.ok ? res.json() : { products: [] })
-      .then(data => setProducts(data.products ?? []))
-      .catch(() => setProducts([]))
-      .finally(() => { setLoading(false); clearTimeout(slowTimer); });
-    return () => clearTimeout(slowTimer);
+
+    const tryFetch = async (attempt: number) => {
+      try {
+        const res = await fetch(url);
+        if (!res.ok) throw new Error("not ok");
+        const data = await res.json();
+        const products: ProductsType = data.products ?? [];
+        if (products.length === 0 && attempt < 8) throw new Error("empty");
+        if (!cancelled) { setProducts(products); setLoading(false); setWaking(false); }
+      } catch {
+        if (cancelled) return;
+        if (attempt === 1) setWaking(true);
+        if (attempt < 8) setTimeout(() => tryFetch(attempt + 1), 5000);
+        else { setLoading(false); setWaking(false); }
+      }
+    };
+
+    tryFetch(1);
+    return () => { cancelled = true; };
   }, [category, search, sort, params]);
 
   return (
@@ -35,7 +48,7 @@ const ProductList = ({ category, sort, search, params }: {
         {loading ? (
           <div className="flex flex-col items-center justify-center gap-3 py-24 text-gray-400">
             <div className="w-8 h-8 border-2 border-gray-300 border-t-gray-600 rounded-full animate-spin" />
-            {slow && (
+            {waking && (
               <p className="text-sm text-center max-w-xs">
                 The server is waking up from sleep mode — this may take up to 60 seconds on the first visit. Thanks for your patience!
               </p>
