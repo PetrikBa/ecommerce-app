@@ -6,7 +6,7 @@ export const createKafkaClient = (service: string) => {
     const sasl: SASLOptions | undefined =
         process.env.KAFKA_USERNAME && process.env.KAFKA_PASSWORD
             ? {
-                  mechanism: "scram-sha-256",
+                  mechanism: "plain",
                   username: process.env.KAFKA_USERNAME,
                   password: process.env.KAFKA_PASSWORD,
               }

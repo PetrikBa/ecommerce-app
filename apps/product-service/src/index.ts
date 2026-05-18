@@ -39,18 +39,12 @@ app.use((err: any, req: Request, res: Response, next: Function) => {
 });
 
 const start = async () => {
-    try {
-        Promise.all([
-            await producer.connect(),
-            await consumer.connect()
-        ])
-        app.listen(Number(process.env.PORT) || 8000, () => {
-            console.log(`Product service is running on port ${process.env.PORT || 8000}`);
-        });
-    } catch (error) {
-        console.error('Error starting server:', error);
-        process.exit(1);
-    }
+    app.listen(Number(process.env.PORT) || 8000, () => {
+        console.log(`Product service is running on port ${process.env.PORT || 8000}`);
+    });
+
+    Promise.all([producer.connect(), consumer.connect()])
+        .catch((err) => console.warn('[Kafka] Connection failed, running without Kafka:', err.message));
 }
 
 start();

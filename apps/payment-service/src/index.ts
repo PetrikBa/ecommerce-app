@@ -33,25 +33,19 @@ app.route('/sessions', sessionRoute);
 app.route('/webhooks', webHookRoute);
 
 const start = async () => {
-  try {
-    Promise.all([
-      await producer.connect(),
-      await consumer.connect()
-    ]);
-    await runKafkaSubscriptions();
-    serve (
-      {
+  serve(
+    {
       fetch: app.fetch,
       port: Number(process.env.PORT) || 8002,
       hostname: '0.0.0.0',
-      },
+    },
     (info) => {
-      console.log('Payment service is running on port 8002')
+      console.log(`Payment service is running on port ${info.port}`);
     }
-  )
-  } catch (error) {
-    console.error('Error starting server:', error);
-    process.exit(1)
-  }
+  );
+
+  Promise.all([producer.connect(), consumer.connect()])
+    .then(() => runKafkaSubscriptions())
+    .catch((err) => console.warn('[Kafka] Connection failed, running without Kafka:', err.message));
 }
 start();

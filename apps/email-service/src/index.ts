@@ -39,9 +39,9 @@ const start = async () => {
     try {
         await consumer.connect();
         await consumer.subscribe(subscriptions);
+        console.log('[Email service] Kafka connected and listening');
     } catch (err) {
-        console.error("Failed to start email service:", err);
-        process.exit(1);
+        console.warn('[Email service] Kafka connection failed, emails will not be sent:', (err as Error).message);
     }
 }
 

@@ -31,15 +31,12 @@ app.use((err: any, req: Request, res: Response, next: Function) => {
 });
 
 const start = async () => {
-    try {
-        await producer.connect();
-        app.listen(Number(process.env.PORT) || 8003, () => {
-            console.log(`Auth service is running on port ${process.env.PORT || 8003}`);
-        });
-    } catch (error) {
-        console.error('Error starting server:', error);
-        process.exit(1);
-    }
+    app.listen(Number(process.env.PORT) || 8003, () => {
+        console.log(`Auth service is running on port ${process.env.PORT || 8003}`);
+    });
+
+    producer.connect()
+        .catch((err) => console.warn('[Kafka] Connection failed, running without Kafka:', err.message));
 }
 
 start();

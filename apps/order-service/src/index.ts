@@ -36,17 +36,17 @@ fastify.register(orderRoute);
 
 const start = async () => {
   try {
-    Promise.all([
-      await connectOrderDB(),
-      await producer.connect(),
-      await consumer.connect()
-    ]);
-    await runKafkaSubscriptions();
-    await fastify.listen({ port: Number(process.env.PORT) || 8001, host: '0.0.0.0' });
-    console.log(`Order service is running on port ${process.env.PORT || 8001}`);
+    await connectOrderDB();
   } catch (err) {
-    console.log(err)
-    process.exit(1)
+    console.error('[MongoDB] Connection failed:', err);
+    process.exit(1);
   }
+
+  await fastify.listen({ port: Number(process.env.PORT) || 8001, host: '0.0.0.0' });
+  console.log(`Order service is running on port ${process.env.PORT || 8001}`);
+
+  Promise.all([producer.connect(), consumer.connect()])
+    .then(() => runKafkaSubscriptions())
+    .catch((err) => console.warn('[Kafka] Connection failed, running without Kafka:', err.message));
 }
 start()
