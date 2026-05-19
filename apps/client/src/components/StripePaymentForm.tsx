@@ -2,7 +2,7 @@
 
 import { loadStripe } from "@stripe/stripe-js";
 import {CheckoutElementsProvider} from '@stripe/react-stripe-js/checkout';
-import { useAuth } from "@clerk/nextjs";
+import { useAuth, useUser } from "@clerk/nextjs";
 import { useEffect, useState } from "react";
 import { CartItemsType, ShippingFormInputs } from "@repo/types";
 import CheckoutForm from "./CheckoutForm";
@@ -41,6 +41,7 @@ const StripePaymentForm = ({
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
   const { getToken } = useAuth();
+  const { isSignedIn } = useUser();
 
   useEffect(() => {
     getToken().then((token) => {
@@ -61,6 +62,15 @@ const StripePaymentForm = ({
         });
     });
   }, []);
+
+  if (!isSignedIn) {
+    return (
+      <div className="flex flex-col gap-3 text-sm">
+        <p className="text-gray-700">You must be logged in to proceed with payment.</p>
+        <a href="/sign-in" className="text-blue-600 hover:underline">Sign in to your account</a>
+      </div>
+    );
+  }
 
   if (error) {
     return <div className="text-red-500 text-sm">{error}</div>;

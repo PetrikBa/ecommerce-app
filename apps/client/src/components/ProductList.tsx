@@ -15,7 +15,7 @@ const ProductList = ({ category, sort, search, params }: {
   }) => {
   const [products, setProducts] = useState<ProductsType>([]);
   const [loading, setLoading] = useState(true);
-  const [waking, setWaking] = useState(false);
+  const [waking, setWaking] = useState(true);
 
   useEffect(() => {
     let cancelled = false;
