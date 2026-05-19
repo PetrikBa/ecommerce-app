@@ -20,7 +20,7 @@ const imageSources = [
 
 export function CarouselDemo() {
     const plugin = React.useRef(
-        Autoplay({ delay: 100000, stopOnInteraction: true })
+        Autoplay({ delay: 3000, stopOnInteraction: true })
     )
   return (
     <div className="relative mb-12 w-full">
