@@ -52,4 +52,17 @@ const start = async () => {
     }
 }
 
+const shutdown = async (signal: string) => {
+    console.log(`[Email service] Received ${signal}, shutting down...`);
+    try {
+        await consumer.disconnect();
+    } catch (err: any) {
+        console.error('[Kafka] Error during disconnect:', err.message);
+    }
+    process.exit(0);
+};
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
+
 start();

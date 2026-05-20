@@ -30,7 +30,8 @@ export const createProduct = async (req:Request, res:Response) => {
         price: product.price,
     };
 
-    producer.send("product.created", stripeProduct);
+    producer.send("product.created", stripeProduct)
+        .catch((err) => console.error('[Kafka] Failed to send product.created:', err.message));
     res.status(201).json({product});
 }
 
@@ -52,7 +53,8 @@ export const deleteProduct = async (req:Request, res:Response) => {
         where: {id: Number(id)},
     });
 
-    producer.send("product.deleted", {id: Number(id)});
+    producer.send("product.deleted", {id: Number(id)})
+        .catch((err) => console.error('[Kafka] Failed to send product.deleted:', err.message));
     return res.status(204).send(deletedProduct);
 }
 

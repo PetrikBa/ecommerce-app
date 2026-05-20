@@ -34,7 +34,7 @@ export const createConsumer = (kafka: Kafka, groupId: string) => {
             }
           }
         } catch (error) {
-          console.log("Error processing message", error);
+          console.error("[Kafka] Error processing message on topic", topic, error);
         }
       },
     });

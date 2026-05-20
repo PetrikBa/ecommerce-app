@@ -11,7 +11,7 @@ export const createOrder = async (order: OrderType) => {
             email: order.email,
             amount: order.amount,
             status: order.status
-        });
+        }).catch((err) => console.error('[Kafka] Failed to send order.created:', err.message));
         console.log(`Order for user ${order.userId} successfully created with id ${newOrder._id}`);
         return newOrder;
     } catch (error) {

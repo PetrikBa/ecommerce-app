@@ -24,7 +24,7 @@ router.post('/', async (req, res) => {
         producer.send("user.created", {
             username: user.username,
             email: user.emailAddresses[0]?.emailAddress,
-        })
+        }).catch((err) => console.error('[Kafka] Failed to send user.created:', err.message));
         res.status(200).json(user);
     } catch (err: any) {
         const status = err.status || 500;

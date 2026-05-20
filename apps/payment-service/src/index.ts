@@ -32,6 +32,19 @@ app.get('/test', shouldBeUser, (c) => {
 app.route('/sessions', sessionRoute);
 app.route('/webhooks', webHookRoute);
 
+const shutdown = async (signal: string) => {
+  console.log(`[Payment service] Received ${signal}, shutting down...`);
+  try {
+    await Promise.all([producer.disconnect(), consumer.disconnect()]);
+  } catch (err: any) {
+    console.error('[Kafka] Error during disconnect:', err.message);
+  }
+  process.exit(0);
+};
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
+
 const start = async () => {
   serve(
     {

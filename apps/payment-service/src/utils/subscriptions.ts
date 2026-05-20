@@ -7,14 +7,22 @@ export const runKafkaSubscriptions = async () => {
             topicName: "product.created",
             topicHandler: async (message) => {
                 console.log("Received message: product.created", message);
-                await createStripeProduct(message);
+                try {
+                    await createStripeProduct(message);
+                } catch (err) {
+                    console.error('[Kafka] Failed to handle product.created:', (err as Error).message);
+                }
             },
         },
         {
             topicName: "product.deleted",
             topicHandler: async (message) => {
                 console.log("Received message: product.deleted", message);
-                await deleteStripeProduct(message);
+                try {
+                    await deleteStripeProduct(message);
+                } catch (err) {
+                    console.error('[Kafka] Failed to handle product.deleted:', (err as Error).message);
+                }
             },
         },
     ]);

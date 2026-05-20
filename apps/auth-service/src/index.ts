@@ -30,6 +30,19 @@ app.use((err: any, req: Request, res: Response, next: Function) => {
     return res.status(err.status || 500).json({ message: err.message || 'Internal server error' });
 });
 
+const shutdown = async (signal: string) => {
+    console.log(`[Auth service] Received ${signal}, shutting down...`);
+    try {
+        await producer.disconnect();
+    } catch (err: any) {
+        console.error('[Kafka] Error during disconnect:', err.message);
+    }
+    process.exit(0);
+};
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
+
 const start = async () => {
     app.listen(Number(process.env.PORT) || 8003, () => {
         console.log(`Auth service is running on port ${process.env.PORT || 8003}`);

@@ -34,6 +34,20 @@ fastify.get('/test', { preHandler: shouldBeUser }, async (request, reply) => {
 
 fastify.register(orderRoute);
 
+const shutdown = async (signal: string) => {
+  console.log(`[Order service] Received ${signal}, shutting down...`);
+  try {
+    await fastify.close();
+    await Promise.all([producer.disconnect(), consumer.disconnect()]);
+  } catch (err: any) {
+    console.error('[Kafka] Error during disconnect:', err.message);
+  }
+  process.exit(0);
+};
+
+process.on('SIGTERM', () => shutdown('SIGTERM'));
+process.on('SIGINT', () => shutdown('SIGINT'));
+
 const start = async () => {
   try {
     await connectOrderDB();
